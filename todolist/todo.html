@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="todo.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <h2>Todo List📝</h2>
+    </div>
+
+    <div id="container1">
+        <div id="ib">
+            <input class="con" type="text" placeholder="Add your list..." id="inp" />
+            <button id="btn" onclick="addItem()">Add</button>
+        </div>
+    </div>
+
+    <h1>List-items:</h1>
+    <div id="container">
+        <ul id="li-items"></ul>
+    </div>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', loadItems);
+
+        function loadItems() {
+            const items = JSON.parse(localStorage.getItem('todoItems')) || [];
+            items.forEach(item => addItemToDOM(item.text, item.completed));
+        }
+
+        function addItem() {
+            const inp = document.getElementById("inp");
+            if (inp.value === '') {
+                alert("Add panrathuku munnadi ethana type pannitu add pannu da velakenna!!!");
+                return;
+            }
+            addItemToDOM(inp.value, false);
+            inp.value = '';
+            saveItems();
+        }
+
+        function addItemToDOM(text, completed) {
+            const itemsList = document.getElementById("li-items");
+
+            const li = document.createElement("li");
+            li.classList.toggle('completed', completed);
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "complete-checkbox";
+            checkbox.checked = completed;
+            checkbox.addEventListener('change', function () {
+                li.classList.toggle('completed', checkbox.checked);
+                saveItems();
+            });
+
+            const textSpan = document.createElement("span");
+            textSpan.className = "item-text";
+            textSpan.textContent = text;
+
+            
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.className = "edit-btn";
+            editBtn.addEventListener('click', function () {
+               
+                textSpan.contentEditable = true;
+                textSpan.classList.add('editing');
+                textSpan.focus();
+                editBtn.style.display = 'none'; 
+                saveBtn.style.display = 'inline';
+            });
+
+            
+            const saveBtn = document.createElement("button");
+            saveBtn.textContent = "Save";
+            saveBtn.className = "save-btn";
+            saveBtn.style.display = 'none'; 
+            saveBtn.addEventListener('click', function () {
+            
+                textSpan.contentEditable = false;
+                textSpan.classList.remove('editing'); 
+                editBtn.style.display = 'inline'; 
+                saveBtn.style.display = 'none'; 
+                saveItems(); 
+            });
+
+
+            const trash = document.createElement("span");
+            trash.className = "delete-icon";
+            trash.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            trash.addEventListener('click', function () {
+                li.remove();
+                saveItems();
+            });
+
+            li.appendChild(checkbox);
+            li.appendChild(textSpan);
+            li.appendChild(editBtn);
+            li.appendChild(saveBtn);
+            li.appendChild(trash);
+            itemsList.append(li);
+        }
+
+        function saveItems() {
+            const items = [];
+            document.querySelectorAll('#li-items li').forEach(li => {
+                const text = li.querySelector('.item-text').textContent;
+                const completed = li.classList.contains('completed');
+                items.push({ text, completed });
+            });
+            localStorage.setItem('todoItems', JSON.stringify(items));
+        }
+    </script>
+
+</body>
+
+</html>
